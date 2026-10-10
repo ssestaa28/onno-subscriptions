@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: onno-subscriptions
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APP_ADMIN_PASSWORD
+        generateValue: true

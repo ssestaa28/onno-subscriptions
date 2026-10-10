@@ -1,0 +1,25 @@
+[Unit]
+Description=Onno subscription service
+After=network.target
+
+[Service]
+Type=simple
+User=onno
+Group=onno
+WorkingDirectory=/var/lib/onno-subscriptions
+StateDirectory=onno-subscriptions
+StateDirectoryMode=0750
+EnvironmentFile=/etc/onno-subscriptions.env
+ExecStart=/usr/bin/java -Xms128m -Xmx768m -jar /opt/onno-subscriptions/app.jar
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+SuccessExitStatus=143
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

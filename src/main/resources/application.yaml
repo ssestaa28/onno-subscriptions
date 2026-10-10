@@ -1,0 +1,30 @@
+debug: false
+spring:
+  application:
+    name: onno-subscriptions
+  datasource:
+    url: jdbc:h2:file:./data/subscriptions;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+server:
+  port: ${PORT:8080}
+onno:
+  ui:
+    locale: ru
+  auth:
+    session:
+      remember-me:
+        enabled: false
+        allow-ephemeral-key: true
+    users:
+      - username: admin
+        password: ${APP_ADMIN_PASSWORD:admin}
+        roles: [ADMIN]
+org:
+  jobrunr:
+    background-job-server:
+      enabled: true
+      worker-count: 2
+    dashboard:
+      enabled: false

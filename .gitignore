@@ -1,0 +1,10 @@
+.reference/
+.gradle/
+.gradle-home/
+build/
+data/
+.idea/
+*.iml
+.env
+*.log
+.runtime/

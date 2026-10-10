@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:subscriptions-test;DB_CLOSE_DELAY=-1
+onno:
+  auth:
+    session:
+      remember-me:
+        enabled: false
+        allow-ephemeral-key: true
+org:
+  jobrunr:
+    background-job-server:
+      enabled: false
+    dashboard:
+      enabled: false

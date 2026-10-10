@@ -1,7 +1,8 @@
 param(
     [string]$BaseUrl = 'http://localhost:8080',
     [string]$Username = 'admin',
-    [string]$Password = $(if ($env:APP_ADMIN_PASSWORD) { $env:APP_ADMIN_PASSWORD } else { 'admin' })
+    [string]$Password = $(if ($env:APP_ADMIN_PASSWORD) { $env:APP_ADMIN_PASSWORD } else { 'admin' }),
+    [switch]$DemoData
 )
 
 $ErrorActionPreference = 'Stop'
@@ -68,14 +69,14 @@ Check ($null -ne $subscriptionForm.initial.startsAt) 'New subscription has start
 
 $suffix = [Guid]::NewGuid().ToString('N').Substring(0, 8)
 $client = Api Post '/api/catalogs/Clients' @{
-    description = "Smoke client $suffix"; email = 'smoke@example.com'; phone = '+7 999 000-00-00'
+    description = $(if ($DemoData) { "Демо клиент $suffix" } else { "Smoke client $suffix" }); email = 'smoke@example.com'; phone = '+7 999 000-00-00'
     status = $clientForm.initial.status; registeredAt = $clientForm.initial.registeredAt
 }
 $monthly = Api Post '/api/catalogs/Tariffs' @{
-    description = "Monthly $suffix"; price = 100; periodDays = 30; available = $true
+    description = $(if ($DemoData) { "Месяц $suffix" } else { "Monthly $suffix" }); price = 100; periodDays = 30; available = $true
 }
 $annual = Api Post '/api/catalogs/Tariffs' @{
-    description = "Annual $suffix"; price = 900; periodDays = 365; available = $true
+    description = $(if ($DemoData) { "Год $suffix" } else { "Annual $suffix" }); price = 900; periodDays = 365; available = $true
 }
 Check ($null -ne $client.id -and $null -ne $monthly.id -and $null -ne $annual.id) 'Catalog creation through generated API'
 
@@ -125,4 +126,14 @@ Check ([decimal]$balances[0].amount -eq 1500) 'Cancellation returns 1100 RUB'
 $rows = @(Api Get "/api/registers/TariffRevenue/turnover?from=2000-01-01&to=2100-01-01&client=$($client.id)")
 $sum = ($rows | Measure-Object -Property amount -Sum).Sum
 Check ([decimal]$sum -eq 0) 'Cancelled subscription has zero revenue'
+if ($DemoData) {
+    $demoSubscription = Api Post '/api/documents/Subscriptions' @{
+        client = $client.id; status = $subscriptionForm.initial.status
+        startsAt = (Get-Date).ToString('yyyy-MM-dd')
+        lines = @(@{tariff = $monthly.id; periods = 2}, @{tariff = $annual.id; periods = 1})
+    }
+    $demoSubscription = Api Post "/api/documents/Subscriptions/$($demoSubscription.id)/post"
+    $balances = @(Api Get "/api/registers/PersonalAccounts/balance?client=$($client.id)")
+    Check ($demoSubscription.posted -eq $true -and [decimal]$balances[0].amount -eq 400) 'Demo leaves active subscription and 400 RUB balance'
+}
 Write-Host "HTTP smoke successful: $script:checks checks. Test client: $($client.id)"

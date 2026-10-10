@@ -6,4 +6,4 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: APP_ADMIN_PASSWORD
-        generateValue: true
+        value: admin

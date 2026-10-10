@@ -4,8 +4,9 @@
 после 15 минут без входящего трафика; следующее открытие требует холодного
 старта. Файлы базы теряются при перезапуске, повторном развёртывании и
 засыпании сервиса. Локальная база остаётся на вашем компьютере.
-Для постоянных данных нужна отдельная внешняя БД; она в эту конфигурацию
-не входит. Render не является VPS из дополнительного пункта задания.
+Для постоянных данных подключите PostgreSQL по [инструкции Neon](postgres.md).
+Без такого подключения используется временная H2. Render не является VPS
+из дополнительного пункта задания.
 
 ## Публикация
 
@@ -33,7 +34,7 @@
 Проверка через API и заполнение демонстрации из локального PowerShell:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/smoke.ps1 -BaseUrl https://onno-subscriptions.onrender.com -Password admin -DemoData
+& ([scriptblock]::Create((Get-Content scripts/smoke.ps1 -Raw -Encoding UTF8))) -BaseUrl https://onno-subscriptions.onrender.com -Password admin -DemoData
 ```
 
 Сценарий проверяет проведение, недостаток средств и отмену, затем оставляет
